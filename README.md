@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+✨ TinyLink — A Modern URL Shortener
 
-## Getting Started
+A Full-Stack Assignment built with Next.js, Prisma, and PostgreSQL
 
-First, run the development server:
+TinyLink is a clean, fast, and production-ready URL shortener featuring custom short codes, analytics tracking, responsive UI, and polished UX.
 
-```bash
+🚀 Features
+
+🔗 URL Shortening
+- Create short URLs instantly
+- Optional custom short code
+- Auto-generated code if not provided
+- Duplicate short-code detection
+- One-click copy button with tooltip
+
+📊 Analytics & Stats
+- Track total clicks
+- Track last clicked timestamp
+- Dedicated stats page for each short code
+- Health check endpoint (/healthz) for monitoring
+
+🖥 UI / UX Highlights
+- Modern layout with Lexend Deca & Work Sans fonts
+- Loading states via loading.tsx
+- Responsive design
+- Ant Design table with:
+- Sorting
+- Tooltip for long URLs
+- Ellipsis truncation
+- Global Header & Footer
+- Clean consistent button styles
+
+⚙️ Backend / API
+
+- REST API for:
+- POST /api/links → Create short URL
+- DELETE /api/links/[code] → Delete
+- GET /[code] → Redirect handler
+- GET /healthz → Health check
+- Prisma ORM with PostgreSQL
+- Unique code generation
+- Server-side validation
+
+| Layer         | Technology                                       |
+| ------------- | ------------------------------------------------ |
+| Frontend      | Next.js 16 (App Router), TailwindCSS, Ant Design |
+| Backend       | Next.js Route Handlers                           |
+| Database      | PostgreSQL                                       |
+| ORM           | Prisma                                           |
+| UI Components | Ant Design + Tailwind                            |
+| Fonts         | Lexend Deca, Work Sans                           |
+| Deployment    | Vercel                                           |
+
+📁 Project Structure
+app/
+├─ page.tsx → Home (Dashboard)
+├─ loading.tsx → Route loading state
+├─ healthz/route.ts → /healthz endpoint
+├─ api/
+│ └─ links/
+│ ├─ route.ts → POST (create short link)
+│ └─ [code]/route.ts → DELETE (remove link)
+└─ code/[code]/page.tsx → Stats page
+components/
+├─ AddLinkForm.tsx
+├─ DashboardTable.tsx
+├─ Header.tsx
+├─ Footer.tsx
+lib/
+├─ prisma.ts
+├─ fonts.ts
+├─ utils.ts
+
+🔧 Installation & Setup
+
+1️⃣ Clone the repository
+git clone https://github.com/yourusername/tinylink.git
+cd tinylink
+
+2️⃣ Install dependencies
+npm install
+
+3️⃣ Set environment variables
+Create a .env file based on .env.example:
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+NEXT_PUBLIC_BASE_URL="http://localhost:3000"
+
+4️⃣ Generate Prisma client
+npx prisma migrate dev
+
+5️⃣ Run the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🧪 Health Check Endpoint
+The assignment requires /healthz without /api, so it is implemented at:
+GET /healthz
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+🚀 Deployment (Vercel)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Push repo to GitHub
+2. Import into Vercel
+3. Add environment variables:
+| KEY                    | VALUE                             |
+| ---------------------- | --------------------------------- |
+| `DATABASE_URL`         | Your hosted PostgreSQL connection |
+| `NEXT_PUBLIC_BASE_URL` | `https://yourapp.vercel.app`      |
+4. Deploy with one click.
