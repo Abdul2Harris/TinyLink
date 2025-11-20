@@ -1,16 +1,18 @@
 import prisma from "@/lib/prisma";
-import { redirect } from "next/navigation";
+import { NextResponse } from "next/server";
 
-export default async function RedirectPage({
-  params,
-}: {
-  params: Promise<{ code: string }>;
-}) {
-  const { code } = await params
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export default async function RedirectPage(
+  req: Request,
+  { params }: { params: Promise<{ code: string }> }
+) {
+  const { code } = await params;
   const link = await prisma.link.findFirst({ where: { code } });
 
   if (!link) {
-    return <h1>404 - Not Found</h1>;
+    return NextResponse.redirect(new URL("/", req.url), 302);
   }
 
   await prisma.link.update({
@@ -21,5 +23,5 @@ export default async function RedirectPage({
     },
   });
 
-  redirect(link.url);
+  return NextResponse.redirect(link.url);
 }

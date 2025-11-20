@@ -13,12 +13,18 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-// import AddLinkForm from "./AddLinkForm";
+import useSWR from "swr";
 
-export default function DashboardTable({ links }: any) {
+const fetcher = (url: string) => fetch(url).then((r) => r.json());
+
+export default function DashboardTable() {
   const router = useRouter();
   const [deleting, setDeleting] = useState<string | null>(null);
   const [api, contextHolder] = notification.useNotification();
+
+  const { data: links, isLoading, mutate } = useSWR("/api/links", fetcher, {
+    revalidateOnFocus: true,
+  });
 
   const handleDelete = async (code: string) => {
     setDeleting(code);
@@ -33,6 +39,14 @@ export default function DashboardTable({ links }: any) {
         });
         return;
       }
+
+      mutate(
+        (currentData: any) => {
+          if (!currentData) return currentData;
+          return currentData.filter((link: any) => link.code !== code);
+        },
+        false
+      );
 
       api.success({
         message: "Link Deleted",
@@ -50,6 +64,7 @@ export default function DashboardTable({ links }: any) {
         description: "Please check your connection and try again.",
         placement: "topRight",
       });
+      mutate();
     } finally {
       setDeleting(null);
     }
@@ -151,7 +166,7 @@ export default function DashboardTable({ links }: any) {
             <span className="text-sm text-gray-500">No Links Created Yet</span>
           ),
         }}
-        loading={!links}
+        loading={isLoading}
         pagination={false}
         bordered
         rowKey="code"

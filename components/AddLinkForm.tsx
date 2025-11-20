@@ -3,14 +3,14 @@
 import { Button, Form, Input, message, notification } from "antd";
 import { useForm } from "antd/es/form/Form";
 import FormItem from "antd/es/form/FormItem";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useSWRConfig } from "swr";
 
 export default function AddLinkForm() {
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
   const [form] = useForm();
   const [api, contextHolder] = notification.useNotification(); // Add this!
+  const { mutate } = useSWRConfig();
 
   const onFinish = async (values: any) => {
     setLoading(true);
@@ -36,6 +36,17 @@ export default function AddLinkForm() {
       }
       const newLink = await res.json();
 
+      mutate(
+        "/api/links",
+        async (currentData: any) => {
+          if (currentData) {
+            return [newLink, ...currentData];
+          }
+          return [newLink];
+        },
+        false
+      );
+
       api.success({
         message: "Link Created Successfully!",
         description: `Your short code: ${newLink.code}`,
@@ -46,10 +57,16 @@ export default function AddLinkForm() {
       form.resetFields();
 
       setTimeout(() => {
-        router.refresh();
+        mutate("/api/links");
       }, 1500);
     } catch (e) {
-      message.error("Network error. Try again.");
+      api.error({
+        message: "Network Error",
+        description: "Please check your connection and try again.",
+        placement: "topRight",
+      });
+
+      mutate("/api/links");
     } finally {
       setLoading(false);
     }

@@ -1,32 +1,89 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request, { params }: { params: Promise<{ code: string }> }) {
-  const {code}  = await params
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-  const getStats = await prisma.link.findFirst({
-    where: {
-      code: code,
-    },
-  });
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ code: string }> }
+) {
+  try {
+    const { code } = await params;
 
-  if (!getStats) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!code) {
+      return NextResponse.json(
+        { error: "Code parameter is required" },
+        { status: 400 }
+      );
+    }
+
+    const link = await prisma.link.findUnique({
+      where: { code },
+    });
+
+    if (!link) {
+      return NextResponse.json({ error: "Link not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(link, {
+      status: 200,
+      headers: {
+        "Cache-Control": "no-store",
+      },
+    });
+  } catch (error) {
+    console.error(
+      `GET /api/links/${await params.then((p) => p.code)} error:`,
+      error
+    );
+    return NextResponse.json(
+      { error: "Failed to fetch link" },
+      { status: 500 }
+    );
   }
-
-  return NextResponse.json(getStats, { status: 200 })
 }
 
-export async function DELETE(req: Request, { params }: { params: Promise<{ code: string }> }) {
-  const {code}  = await params
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ code: string }> }
+) {
+  try {
+    const { code } = await params;
 
-  const link = await prisma.link.findUnique({ where: { code } })
+    if (!code) {
+      return NextResponse.json(
+        { error: "Code parameter is required" },
+        { status: 400, headers: { "Cache-Control": "no-store" } }
+      );
+    }
 
-  if (!link) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 })
+    // Check if link exists
+    const link = await prisma.link.findUnique({ where: { code } });
+
+    if (!link) {
+      return NextResponse.json(
+        { error: "Link not found" },
+        { status: 404, headers: { "Cache-Control": "no-store" } }
+      );
+    }
+
+    // Delete the link
+    await prisma.link.delete({ where: { code } });
+
+    return NextResponse.json(
+      { success: true, message: "Link deleted successfully" },
+      { status: 200, headers: { "Cache-Control": "no-store" } }
+    );
+  } catch (error) {
+    console.error(
+      `DELETE /api/links/${await params.then((p) => p.code)} error:`,
+      error
+    );
+
+    return NextResponse.json(
+      { error: "Failed to delete link" },
+      { status: 500, headers: { "Cache-Control": "no-store" } }
+    );
   }
-
-  await prisma.link.delete({ where: { code } })
-
-  return NextResponse.json({ ok: true }, { status: 200 })
 }
