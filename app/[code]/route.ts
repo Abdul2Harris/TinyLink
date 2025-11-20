@@ -1,20 +1,21 @@
-import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export default async function RedirectPage(
-  req: Request,
-  { params }: { params: Promise<{ code: string }> }
-) {
+export async function GET(req: Request, { params }: { params: Promise<{ code: string }>; }) {
   const { code } = await params;
-  const link = await prisma.link.findFirst({ where: { code } });
+
+  const link = await prisma.link.findUnique({
+    where: { code },
+  });
 
   if (!link) {
     return NextResponse.redirect(new URL("/", req.url), 302);
   }
 
+  // Update click count atomically
   await prisma.link.update({
     where: { code },
     data: {
