@@ -4,7 +4,14 @@ import prisma from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export async function GET(req: Request, { params }: { params: Promise<{ code: string }>; }) {
+export async function HEAD() {
+  return new Response(null, { status: 200 });
+}
+
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ code: string }> }
+) {
   const { code } = await params;
 
   const link = await prisma.link.findUnique({
@@ -15,7 +22,12 @@ export async function GET(req: Request, { params }: { params: Promise<{ code: st
     return NextResponse.redirect(new URL("/", req.url), 302);
   }
 
-  // Update click count atomically
+  // Make sure redirect URL ALWAYS has protocol
+  let redirectTo = link.url;
+  if (!redirectTo.startsWith("http://") && !redirectTo.startsWith("https://")) {
+    redirectTo = "https://" + redirectTo;
+  }
+
   await prisma.link.update({
     where: { code },
     data: {
@@ -24,5 +36,5 @@ export async function GET(req: Request, { params }: { params: Promise<{ code: st
     },
   });
 
-  return NextResponse.redirect(link.url);
+  return NextResponse.redirect(link.url, 302);
 }

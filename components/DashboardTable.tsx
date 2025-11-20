@@ -81,6 +81,7 @@ export default function DashboardTable() {
             <Link
               href={`/${code}`}
               target="_blank"
+              prefetch={false}
               className="text-blue-600 underline"
             >
               {`TinyLink/${code}`}
