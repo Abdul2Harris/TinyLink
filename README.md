@@ -1,6 +1,6 @@
-✨ TinyLink — A Modern URL Shortener
+TinyLink — A Modern URL Shortener
 
-A Full-Stack Assignment built with Next.js, Prisma, and PostgreSQL
+A Full-Stack Web Application built with Next.js, Prisma, and PostgreSQL
 
 TinyLink is a clean, fast, and production-ready URL shortener featuring custom short codes, analytics tracking, responsive UI, and polished UX.
 
@@ -90,10 +90,6 @@ npx prisma migrate dev
 
 5️⃣ Run the development server
 npm run dev
-
-🧪 Health Check Endpoint
-The assignment requires /healthz without /api, so it is implemented at:
-GET /healthz
 
 🚀 Deployment (Vercel)
 
